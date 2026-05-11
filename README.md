@@ -1,15 +1,14 @@
 # Collaborative Multi-Agent Visual SLAM for Uncertainty-Aware Navigation
 
-> **Research Project — Multi-Robot Collaborative SLAM & Navigation**  
-> ROS2 · ORB-SLAM3 · COVINS-G · SCOPE · TurtleBot4 · Gazebo
 
 ---
+```text
+# Note
+This project was conducted as part of TASL Lab at university of California, Riverside. The codebase, robot hardware, and computing infrastructure were owned by the lab. Accordingly, no source code or experimental data are published in this repository. This README documents the system design, technical architecture, and implementation approach for reference and portfolio purposes.
 
-Note: This project was conducted as part of TASL Lab at university of California, Riverside. The codebase, robot hardware, and computing infrastructure were owned by the lab. Accordingly, no source code or experimental data are published in this repository. This README documents the system design, technical architecture, and implementation approach for reference and portfolio purposes.
-
-#Personal Reimplementation & Planned Extensions
+# Personal Reimplementation & Planned Extensions
 In Progress: A personal reimplementation of this system in a simulated environment is currently in progress. Since the original codebase belongs to the university research lab, this reimplementation is being developed independently from scratch. Three extensions beyond the original architecture are being incorporated, each targeting a distinct layer of the system.
-
+```
 ---
 
 # Overview
@@ -21,16 +20,16 @@ Traditional multi-robot SLAM systems operate independently: each robot maintains
 - Inconsistent global reference frames
 - Poor coordination during collaborative navigation
 
-This project addresses those limitations by building a **collaborative multi-agent visual SLAM system** in which **three TurtleBot4 robots** jointly construct and maintain a **single globally consistent map** in real time.
+This project addresses those limitations by building a collaborative multi-agent visual SLAM system in which three TurtleBot4 robots jointly construct and maintain a single globally consistent map in real time.
 
-Each robot runs **ORB-SLAM3** locally as the visual front-end, extracting ORB features from RGB-D camera streams and generating keyframes. These keyframes are transmitted through a **ROS2 + DDS** communication layer to a centralized **COVINS-G** back-end, which performs:
+Each robot runs ORB-SLAM3 locally as the visual front-end, extracting ORB features from RGB-D camera streams and generating keyframes. These keyframes are transmitted through a ROS2 + DDS communication layer to a centralized COVINS-G back-end, which performs:
 
 - Global pose graph optimization
 - Cross-agent loop closure detection
 - Drift correction
 - Shared map fusion
 
-A major limitation of conventional SLAM-driven navigation is that planners assume localization is perfect. This project explicitly addresses that by integrating **SCOPE**, which propagates covariance estimates from the SLAM back-end and produces uncertainty-aware localization confidence scores.
+A major limitation of conventional SLAM-driven navigation is that planners assume localization is perfect. This project explicitly addresses that by integrating SCOPE, which propagates covariance estimates from the SLAM back-end and produces uncertainty-aware localization confidence scores.
 
 The resulting system enables:
 
@@ -113,7 +112,7 @@ The system is organized into four functional layers:
 
 ---
 
-## 1. ORB-SLAM3 — Per-Robot Front-End
+## 1. ORB-SLAM3 - Per-Robot Front-End
 
 Each TurtleBot4 runs an independent ORB-SLAM3 front-end on its onboard Raspberry Pi 4.
 
@@ -180,7 +179,7 @@ Where:
 
 ---
 
-## 2. COVINS-G — Multi-Agent Global Back-End
+## 2. COVINS-G - Multi-Agent Global Back-End
 
 COVINS-G acts as the centralized collaborative SLAM back-end.
 
@@ -243,7 +242,7 @@ This optimization jointly corrects drift across all robots simultaneously.
 
 ## Cross-Agent Loop Closure
 
-Place recognition is performed using **DBoW2** bag-of-words matching over ORB descriptors.
+Place recognition is performed using DBoW2 bag-of-words matching over ORB descriptors.
 
 ```text
 Robot A Keyframe ──► Visual Vocabulary
@@ -260,7 +259,7 @@ Cross-agent loop closures allow robots to align maps even when exploring indepen
 
 ---
 
-## 3. SCOPE — Uncertainty Estimation
+## 3. SCOPE - Uncertainty Estimation
 
 Traditional SLAM pipelines output only a pose estimate:
 
@@ -437,8 +436,8 @@ This enables integration of semantic uncertainty from dynamic objects.
 |---|---|
 | Mobile Robots | 3× TurtleBot4 |
 | RGB-D Cameras | 3× Intel RealSense D435i |
-| Onboard Compute | Raspberry Pi 4 (4GB RAM) |
-| Ground Station | Ubuntu 22.04 Workstation |
+| Onboard Compute | Raspberry Pi 4 (8GB RAM) |
+| Ground Station | Ubuntu 24.04 Workstation |
 | Network | Dedicated 5 GHz Wi-Fi |
 | LiDAR | RPLIDAR A1M8 |
 
@@ -489,7 +488,7 @@ Three physical TurtleBot4 robots operated simultaneously in the same environment
 
 > **In Progress:** A full independent reimplementation of the system is currently under development in Gazebo + ROS2.
 
-Since the original research codebase belongs to the university lab, the reimplementation is being developed independently from scratch using public open-source components.
+Since the original research codebase belongs to the university lab, the reimplementation is being developed independently from scratch.
 
 ---
 
@@ -610,16 +609,3 @@ This allows Nav2 to reason about both:
 
 ---
 
-# References
-
-1. Mur-Artal et al. — ORB-SLAM3  
-2. COVINS-G Collaborative SLAM Framework  
-3. ROS2 Nav2 Navigation Stack  
-4. DBoW2 Visual Place Recognition  
-5. SCOPE Uncertainty Estimation Framework  
-6. SuperPoint & LightGlue Feature Matching  
-7. YOLOv8 Object Detection
-
----
-
-*Multi-Robot SLAM · Collaborative Mapping · Uncertainty-Aware Navigation · ROS2 Research Project*
