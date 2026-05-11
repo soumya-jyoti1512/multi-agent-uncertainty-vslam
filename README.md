@@ -2,13 +2,13 @@
 
 
 ---
-```text
+
 # Note
 This project was conducted as part of TASL Lab at university of California, Riverside. The codebase, robot hardware, and computing infrastructure were owned by the lab. Accordingly, no source code or experimental data are published in this repository. This README documents the system design, technical architecture, and implementation approach for reference and portfolio purposes.
 
 # Personal Reimplementation & Planned Extensions
 In Progress: A personal reimplementation of this system in a simulated environment is currently in progress. Since the original codebase belongs to the university research lab, this reimplementation is being developed independently from scratch. Three extensions beyond the original architecture are being incorporated, each targeting a distinct layer of the system.
-```
+
 ---
 
 # Overview
@@ -114,6 +114,8 @@ The system is organized into four functional layers:
 
 ## 1. ORB-SLAM3 - Per-Robot Front-End
 
+ORB-SLAM3 provides the per-robot visual SLAM front-end due to its robustness across monocular, stereo, and RGB-D input modes and its structured keyframe representation, which is directly compatible with COVINS-G's map fusion protocol. On each robot, ORB-SLAM3 performs real-time feature extraction using ORB (Oriented FAST and Rotated BRIEF) keypoints from the RGB-D stream, computes visual odometry through feature matching and PnP pose estimation, and maintains a local map of 3D map points. Keyframes are selected based on tracking quality and motion thresholds, and their associated poses, ORB descriptors, and co-visible map points are forwarded to the back-end.
+
 Each TurtleBot4 runs an independent ORB-SLAM3 front-end on its onboard Raspberry Pi 4.
 
 ### Responsibilities
@@ -180,6 +182,8 @@ Where:
 ---
 
 ## 2. COVINS-G - Multi-Agent Global Back-End
+
+COVINS-G maintains a global pose graph in which nodes represent shared keyframes from all agents and edges encode relative pose constraints derived from visual co-visibility and loop closure detections. Place recognition is performed using DBoW2 (Bag of Binary Words) on incoming ORB descriptors, enabling loop closure detection both within a single agent's trajectory and across different agents the mechanism by which the system achieves cross-robot map alignment. When a loop is detected, a new edge is added to the graph, and a joint non-linear pose graph optimization is solved to minimize accumulated drift across all robots simultaneously, maintaining global consistency.
 
 COVINS-G acts as the centralized collaborative SLAM back-end.
 
@@ -261,6 +265,8 @@ Cross-agent loop closures allow robots to align maps even when exploring indepen
 
 ## 3. SCOPE - Uncertainty Estimation
 
+SCOPE augments the pipeline by computing covariance estimates over robot poses from the marginal distributions produced by COVINS-G's back-end optimizer. Rather than treating the optimized pose as a deterministic point estimate, SCOPE characterizes the uncertainty envelope around each robot's localization essentially, how confident the system is that the robot is where COVINS-G says it is. These covariance-weighted confidence scores are published as uncertainty-stamped pose topics over ROS2, which the Nav2 stack subscribes to in order to parameterize trajectory cost functions dynamically.
+
 Traditional SLAM pipelines output only a pose estimate:
 
 ```math
@@ -309,6 +315,8 @@ which Nav2 consumes during planning.
 ---
 
 ## 4. Uncertainty-Aware Navigation with Nav2
+
+The Nav2 navigation stack is configured to consume SCOPE's uncertainty output as a modulating signal during trajectory planning. High localization confidence allows standard path following with normal velocity and planning horizons. When localization confidence drops for instance, in visually degenerate regions or areas not yet well-explored by the collaborative map the planner triggers conservative behavior: reduced speeds, shorter planning horizons, or active replanning toward regions of higher confidence. This closes the loop between map quality and navigation behavior in a principled, confidence-driven way.
 
 Nav2 integrates SCOPE uncertainty estimates into trajectory planning.
 
