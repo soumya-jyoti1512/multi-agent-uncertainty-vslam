@@ -1,6 +1,6 @@
 # Collaborative Multi-Agent Visual SLAM for Uncertainty-Aware Navigation
 
-
+>A ROS 2-based collaborative SLAM framework that integrates ORB-SLAM3 with COVINS-G and SCOPE for distributed 3D mapping, validated within the Gazebo simulator and deployed on TurtleBot4 hardware.
 ---
 
 # Note
