@@ -71,6 +71,7 @@ The system is organized into four functional layers:
 3. Centralized multi-agent SLAM back-end
 4. Uncertainty-aware navigation
 
+## System Architecture
 ![System Architecture](flowcharts/system_architecture.png)
 
 ```text
