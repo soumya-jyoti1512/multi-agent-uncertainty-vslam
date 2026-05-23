@@ -71,7 +71,7 @@ The system is organized into four functional layers:
 3. Centralized multi-agent SLAM back-end
 4. Uncertainty-aware navigation
 
-![system architecture](flowcharts/system architecture.png)
+![System Architecture](flowcharts/system_architecture.png)
 
 ```text
 +------------------+  +------------------+  +------------------+
@@ -136,6 +136,8 @@ Each TurtleBot4 runs an independent ORB-SLAM3 front-end on its onboard Raspberry
 - 640×480 @ 30 FPS
 
 ### ORB Feature Pipeline
+
+![ORB Feature Pipeline](flowcharts/orb_feature_pipeline.png)
 
 ```text
 RGB-D Frame
@@ -249,6 +251,8 @@ This optimization jointly corrects drift across all robots simultaneously.
 ## Cross-Agent Loop Closure
 
 Place recognition is performed using DBoW2 bag-of-words matching over ORB descriptors.
+
+![Cross Agent Loop Closure](flowcharts/cross_agent_loop_closure.png)
 
 ```text
 Robot A Keyframe ──► Visual Vocabulary
@@ -543,6 +547,8 @@ ORB struggles in:
 - Poor lighting
 
 ### Updated Pipeline
+
+![Learning Feature Extraction](flowcharts/learning_feature_extraction.png)
 
 ```text
 RGB Image
