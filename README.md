@@ -72,7 +72,42 @@ The system is organized into four functional layers:
 4. Uncertainty-aware navigation
 
 ## System Architecture
-![System Architecture](flowcharts/system_architecture.png)
+![system architecture](flowcharts/system_architecture.png)
+
+```text
++------------------+  +------------------+  +------------------+
+|  TurtleBot4 #1   |  |  TurtleBot4 #2   |  |  TurtleBot4 #3   |
+|  ORB-SLAM3       |  |  ORB-SLAM3       |  |  ORB-SLAM3       |
+|  Front-End       |  |  Front-End       |  |  Front-End       |
+|  RGB-D Stream    |  |  RGB-D Stream    |  |  RGB-D Stream    |
++--------+---------+  +--------+---------+  +--------+---------+
+         |                     |                     |
+         +---------------------+---------------------+
+                               |
+                    +----------+----------+
+                    |   ROS2 + DDS Layer  |
+                    | (Cyclone DDS / LAN) |
+                    +----------+----------+
+                               |
+                    +----------+----------+
+                    |      COVINS-G       |
+                    | Global Pose Graph   |
+                    | Optimization +      |
+                    | Cross-Agent Loops   |
+                    +----------+----------+
+                               |
+                    +----------+----------+
+                    |      SCOPE          |
+                    | Covariance /        |
+                    | Uncertainty         |
+                    +----------+----------+
+                               |
+                    +----------+----------+
+                    |      Nav2           |
+                    | Uncertainty-Aware   |
+                    | Trajectory Planner  |
+                    +---------------------+
+```
 
 
 
