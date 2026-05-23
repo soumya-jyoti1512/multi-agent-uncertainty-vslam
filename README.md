@@ -75,7 +75,7 @@ The system is organized into four functional layers:
 ![System Architecture](flowcharts/system_architecture.png)
 
 
----
+
 
 # Technical Approach
 
