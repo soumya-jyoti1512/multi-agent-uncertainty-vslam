@@ -73,6 +73,8 @@ The system is organized into four functional layers:
 
 ## System Architecture
 
+<img width="2916" height="2286" alt="Image" src="https://github.com/user-attachments/assets/1e6b6ef1-fa7a-4880-9d4a-a23a2eea3440" />
+
 ```text
 +------------------+  +------------------+  +------------------+
 |  TurtleBot4 #1   |  |  TurtleBot4 #2   |  |  TurtleBot4 #3   |
