@@ -75,45 +75,6 @@ The system is organized into four functional layers:
 
 <img width="2916" height="2286" alt="Image" src="https://github.com/user-attachments/assets/1e6b6ef1-fa7a-4880-9d4a-a23a2eea3440" />
 
-```text
-+------------------+  +------------------+  +------------------+
-|  TurtleBot4 #1   |  |  TurtleBot4 #2   |  |  TurtleBot4 #3   |
-|  ORB-SLAM3       |  |  ORB-SLAM3       |  |  ORB-SLAM3       |
-|  Front-End       |  |  Front-End       |  |  Front-End       |
-|  RGB-D Stream    |  |  RGB-D Stream    |  |  RGB-D Stream    |
-+--------+---------+  +--------+---------+  +--------+---------+
-         |                     |                     |
-         +---------------------+---------------------+
-                               |
-                    +----------+----------+
-                    |   ROS2 + DDS Layer  |
-                    | (Cyclone DDS / LAN) |
-                    +----------+----------+
-                               |
-                    +----------+----------+
-                    |      COVINS-G       |
-                    | Global Pose Graph   |
-                    |    Optimization +   |
-                    | Cross-Agent Loops   |
-                    +----------+----------+
-                               |
-                    +----------+----------+
-                    |        SCOPE        |
-                    |     Covariance /    |
-                    |     Uncertainty     |
-                    +----------+----------+
-                               |
-                    +----------+----------+
-                    |        Nav2         |
-                    |  Uncertainty-Aware  |
-                    |  Trajectory Planner |
-                    +---------------------+
-
-```
-
-
-
-
 # Technical Approach
 
 ---
@@ -140,25 +101,7 @@ Each TurtleBot4 runs an independent ORB-SLAM3 front-end on its onboard Raspberry
 - 640×480 @ 30 FPS
 
 ### ORB Feature Pipeline
-
-```text
-  RGB-D Frame
-      │
-      ▼
-FAST Keypoint Detection
-      │
-      ▼
-ORB Descriptor Extraction
-      │
-      ▼
-Feature Matching
-      │
-      ▼
-PnP Pose Estimation
-      │
-      ▼
-Keyframe Selection
-```
+<img width="1385" height="2015" alt="Image" src="https://github.com/user-attachments/assets/8db2a692-c7a1-4180-bac3-04e6a9814dba" />
 
 ### ORB Descriptor
 
@@ -254,16 +197,7 @@ This optimization jointly corrects drift across all robots simultaneously.
 
 Place recognition is performed using DBoW2 bag-of-words matching over ORB descriptors.
 
-```text
-Robot A Keyframe ──► Visual Vocabulary
-                                   │
-Robot B Keyframe ──► Similarity Score
-                                   │
-                            Loop Closure?
-                                   │
-                                   ▼
-                        Add Pose Constraint Edge
-```
+<img width="2376" height="1835" alt="Image" src="https://github.com/user-attachments/assets/aee0bc26-b065-40d1-8714-f416d78c83f5" />
 
 Cross-agent loop closures allow robots to align maps even when exploring independently.
 
@@ -548,19 +482,7 @@ ORB struggles in:
 
 ### Updated Pipeline
 
-
-```text
-RGB Image
-    │
-    ▼
-SuperPoint Keypoints
-    │
-    ▼
-LightGlue Matching
-    │
-    ▼
-PnP Pose Estimation
-```
+<img width="1385" height="1565" alt="Image" src="https://github.com/user-attachments/assets/2e25efae-9e71-446c-b187-b663858312c1" />
 
 Expected improvements:
 
