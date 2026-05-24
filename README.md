@@ -72,8 +72,6 @@ The system is organized into four functional layers:
 4. Uncertainty-aware navigation
 
 ## System Architecture
-![system architecture](flowchart/system_architecture.png)
-![system architecture](flowchart/system_architecture.PNG)
 
 ```text
 +------------------+  +------------------+  +------------------+
@@ -93,21 +91,22 @@ The system is organized into four functional layers:
                     +----------+----------+
                     |      COVINS-G       |
                     | Global Pose Graph   |
-                    | Optimization +      |
+                    |    Optimization +   |
                     | Cross-Agent Loops   |
                     +----------+----------+
                                |
                     +----------+----------+
-                    |      SCOPE          |
-                    | Covariance /        |
-                    | Uncertainty         |
+                    |        SCOPE        |
+                    |     Covariance /    |
+                    |     Uncertainty     |
                     +----------+----------+
                                |
                     +----------+----------+
-                    |      Nav2           |
-                    | Uncertainty-Aware   |
-                    | Trajectory Planner  |
+                    |        Nav2         |
+                    |  Uncertainty-Aware  |
+                    |  Trajectory Planner |
                     +---------------------+
+
 ```
 
 
@@ -140,10 +139,8 @@ Each TurtleBot4 runs an independent ORB-SLAM3 front-end on its onboard Raspberry
 
 ### ORB Feature Pipeline
 
-![ORB Feature Pipeline](flowcharts/orb_feature_pipeline.png)
-
 ```text
-RGB-D Frame
+  RGB-D Frame
       │
       ▼
 FAST Keypoint Detection
@@ -254,8 +251,6 @@ This optimization jointly corrects drift across all robots simultaneously.
 ## Cross-Agent Loop Closure
 
 Place recognition is performed using DBoW2 bag-of-words matching over ORB descriptors.
-
-![Cross Agent Loop Closure](flowcharts/cross_agent_loop_closure.png)
 
 ```text
 Robot A Keyframe ──► Visual Vocabulary
@@ -551,7 +546,6 @@ ORB struggles in:
 
 ### Updated Pipeline
 
-![Learning Feature Extraction](flowcharts/learning_feature_extraction.png)
 
 ```text
 RGB Image
@@ -613,18 +607,6 @@ This allows Nav2 to reason about both:
 
 - Localization uncertainty
 - Scene instability
-
----
-
-# Key Contributions
-
-- Collaborative multi-agent visual SLAM
-- Shared globally optimized pose graph
-- Cross-agent loop closure
-- Uncertainty-aware navigation
-- Real-world TurtleBot4 deployment
-- Semantic uncertainty extension
-- Decentralized SLAM architecture proposal
 
 ---
 
