@@ -72,7 +72,8 @@ The system is organized into four functional layers:
 4. Uncertainty-aware navigation
 
 ## System Architecture
-![system architecture](flowcharts/system_architecture.png)
+![system architecture](flowchart/system_architecture.png)
+![system architecture](flowchart/system_architecture.PNG)
 
 ```text
 +------------------+  +------------------+  +------------------+
