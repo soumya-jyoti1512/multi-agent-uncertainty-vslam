@@ -3,6 +3,8 @@
 >A ROS 2-based collaborative SLAM framework that integrates ORB-SLAM3 with COVINS-G and SCOPE for distributed 3D mapping, validated within the Gazebo simulator and deployed on TurtleBot4 hardware.
 ---
 
+Lab Member webpage(Check alumni section): https://tasl.ucr.edu/people/
+
 # Note
 This project was conducted as part of TASL Lab at university of California, Riverside. The codebase, robot hardware, and computing infrastructure were owned by the lab. Accordingly, no source code or experimental data are published in this repository. This README documents the system design, technical architecture, and implementation approach for reference and portfolio purposes.
 
