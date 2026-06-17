@@ -205,109 +205,34 @@ Cross-agent loop closures allow robots to align maps even when exploring indepen
 
 ---
 
-## 3. SCOPE - Uncertainty Estimation
 
-SCOPE augments the pipeline by computing covariance estimates over robot poses from the marginal distributions produced by COVINS-G's back-end optimizer. Rather than treating the optimized pose as a deterministic point estimate, SCOPE characterizes the uncertainty envelope around each robot's localization essentially, how confident the system is that the robot is where COVINS-G says it is. These covariance-weighted confidence scores are published as uncertainty-stamped pose topics over ROS2, which the Nav2 stack subscribes to in order to parameterize trajectory cost functions dynamically.
+### 3. SCOPE - Stochastic Occupancy Prediction (Dynamic-Environment Forecasting)
 
-Traditional SLAM pipelines output only a pose estimate:
+While the collaborative visual SLAM stack (ORB-SLAM3 + COVINS-G) handles localization and static mapping, SCOPE adds awareness of the dynamic environment. It is a family of deep-neural-network occupancy predictors (`scope++`, `scope`, `so-scope`), implemented in PyTorch, that forecast the future occupancy grid map of the scene about 0.5 s (5 steps) ahead together with the uncertainty of that forecast.
 
-```math
-\hat{x}
-```
+**Pipeline:**
 
-However, navigation requires knowledge of confidence as well.
+- **Input** - the robot's **2D LiDAR** stream is converted into a short history of local occupancy grid maps, together with the robot's ego-motion (so SCOPE can separate its own movement from the scene's).
+- **Model** - a stochastic deep generative network rolls the occupancy grid forward in time. Because it is stochastic, a single inference draws several plausible future occupancy samples.
+- **Output** - from those samples, a prediction (mean) occupancy map (where dynamic obstacles are likely to be) and an uncertainty map (how confident the forecast is). The lightweight `so-scope` variant reads from a precomputed uncertainty-statistics lookup table for fast inference on resource-limited robots.
 
-SCOPE augments the pipeline by estimating pose covariance:
+Prediction mean and uncertainty over $K$ stochastic occupancy samples $\hat{M}^{(k)}$ predicted $\Delta$ steps into the future:
 
-```math
-\Sigma =
-\mathbb{E}
-[(x-\hat{x})(x-\hat{x})^T]
-```
+$$\bar{M}_{t+\Delta} = \frac{1}{K}\sum_{k=1}^{K}\hat{M}^{(k)}_{t+\Delta}, \qquad U_{t+\Delta} = \frac{1}{K}\sum_{k=1}^{K}\left(\hat{M}^{(k)}_{t+\Delta} - \bar{M}_{t+\Delta}\right)^{2}$$
 
-Where:
+The mean map $\bar{M}$ and uncertainty map $U$ become the prediction and uncertainty costmap layers, with each occupied cell mapped to a soft (Gaussian) cost rather than a lethal one.
 
-- `x̂` → estimated pose
-- `Σ` → localization uncertainty covariance matrix
+> Role of the LiDAR: although localization and mapping are camera-based (RGB-D → ORB-SLAM3 / COVINS-G), the RPLIDAR A1M8 is the sensor that feeds SCOPE. The camera drives collaborative SLAM; the LiDAR drives dynamic occupancy prediction.
 
----
+### 4. Nav2 - Predictive Uncertainty-Aware Navigation
 
-## Confidence Metric
+SCOPE's outputs are fused into the ROS 2 navigation stack (Nav2) as **two additional costmap layers** merged into the master costmap:
 
-Localization confidence is derived from covariance magnitude:
+1. Prediction costmap layer - adds cost where dynamic obstacles are forecast to be, so the planner routes around where people are *heading*, not just where they currently are.
+2. Uncertainty costmap layer - adds cost in proportion to the forecast uncertainty, so the robot keeps a wider margin where the prediction is less reliable.
 
-```math
-c = \frac{1}{\mathrm{trace}(\Sigma)}
-```
+Predicted and uncertain cells are mapped to a soft Gaussian cost rather than a lethal obstacle value a predicted obstacle or an uncertain region is not a confirmed obstacle, so a soft cost gradient steers the robot toward safer routes without freezing it. The result is a predictive, uncertainty-aware nominal path. Because the layers use the standard layered-costmap interface, the framework works on top of either a classical controller (e.g., DWA) or a learned policy (e.g., DRL-VO).
 
-Higher covariance → lower confidence.
-
----
-
-## Uncertainty Propagation
-
-The uncertainty estimate is published through ROS2 as:
-
-```text
-PoseWithCovarianceStamped
-```
-
-which Nav2 consumes during planning.
-
----
-
-## 4. Uncertainty-Aware Navigation with Nav2
-
-The Nav2 navigation stack is configured to consume SCOPE's uncertainty output as a modulating signal during trajectory planning. High localization confidence allows standard path following with normal velocity and planning horizons. When localization confidence drops for instance, in visually degenerate regions or areas not yet well-explored by the collaborative map the planner triggers conservative behavior: reduced speeds, shorter planning horizons, or active replanning toward regions of higher confidence. This closes the loop between map quality and navigation behavior in a principled, confidence-driven way.
-
-Nav2 integrates SCOPE uncertainty estimates into trajectory planning.
-
-### Behavior Policy
-
-| Confidence | Navigation Behavior |
-|---|---|
-| High | Normal velocity and aggressive planning |
-| Medium | Conservative trajectory generation |
-| Low | Replanning + reduced speed |
-
----
-
-## Cost Function Modulation
-
-Trajectory cost is modified as:
-
-```math
-J_{total} =
-J_{path}
-+
-\lambda_u \cdot U(x)
-```
-
-Where:
-
-- `J_path` → standard path cost
-- `U(x)` → uncertainty penalty
-- `λ_u` → uncertainty weighting coefficient
-
----
-
-## Adaptive Velocity Control
-
-Velocity is reduced in uncertain regions:
-
-```math
-v =
-v_{max} \cdot e^{-k \cdot \mathrm{trace}(\Sigma)}
-```
-
-Where:
-
-- `v_max` → maximum robot velocity
-- `k` → decay coefficient
-
-This creates confidence-aware navigation behavior.
-
----
 
 # Mathematical Formulation
 
@@ -351,18 +276,6 @@ Where:
 
 ---
 
-## Covariance Fusion
-
-Composite uncertainty:
-
-```math
-\Sigma_{total} =
-\Sigma_{slam}
-+
-\lambda_d \Sigma_{dynamic}
-```
-
-This enables integration of semantic uncertainty from dynamic objects.
 
 ---
 
@@ -414,7 +327,7 @@ This enables integration of semantic uncertainty from dynamic objects.
 
 The complete system was validated in:
 
-- Gazebo Classic simulation
+- Gazebo simulation
 - Real TurtleBot4 deployment
 
 ### Simulation Objectives
@@ -437,7 +350,7 @@ Three physical TurtleBot4 robots operated simultaneously in the same environment
 
 # Personal Reimplementation & Planned Extensions
 
-> **In Progress:** A full independent reimplementation of the system is currently under development in Gazebo + ROS2.
+>  A full independent reimplementation of the system is currently planned.
 
 Since the original research codebase belongs to the university lab, the reimplementation is being developed independently from scratch.
 
@@ -495,45 +408,10 @@ Expected improvements:
 
 ---
 
-## 3. Semantic Uncertainty for Dynamic Environments
+## 3. Semantic Uncertainty for Dynamic Scenes (YOLOv8n)
 
-SCOPE estimates geometric uncertainty but not scene dynamics.
+SCOPE predicts *where* occupancy will be and how uncertain that is, but it is **class-agnostic** — it does not know *what* is moving. This extension adds a lightweight **YOLOv8n** detector and folds a semantic term into SCOPE's uncertainty layer, so the robot is extra cautious specifically around recognized humans:
 
-The reimplementation adds semantic uncertainty using:
+$$D = \sum_i A_i\, c_i, \qquad U_{\text{final}} = \alpha\, U_{\text{occ}} + \beta\, U_{\text{semantic}}$$
 
-- YOLOv8n object detection
-- Dynamic occupancy scoring
-
-### Dynamic Occupancy Score
-
-```math
-D =
-\sum_i
-A_i \cdot c_i
-```
-
-Where:
-
-- `A_i` → normalized bounding box area
-- `c_i` → detection confidence
-
----
-
-## Composite Uncertainty
-
-Final uncertainty:
-
-```math
-U_{final} =
-\alpha \cdot U_{geometric}
-+
-\beta \cdot U_{semantic}
-```
-
-This allows Nav2 to reason about both:
-
-- Localization uncertainty
-- Scene instability
-
----
-
+where $A_i$ is a normalized bounding-box area and $c_i$ the detection confidence. This enriches the occupancy-prediction uncertainty; it does **not** alter the SLAM localization.
