@@ -377,6 +377,7 @@ This enables integration of semantic uncertainty from dynamic objects.
 | Middleware | ROS2 + Cyclone DDS | Communication |
 | Simulation | Gazebo Classic | Multi-robot simulation |
 | Place Recognition | DBoW2 | Loop closure detection |
+| Language | C++ , Python |
 
 ---
 
