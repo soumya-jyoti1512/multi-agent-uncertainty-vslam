@@ -285,7 +285,7 @@ Where:
 |---|---|---|
 | SLAM Front-End | ORB-SLAM3 | Local visual SLAM |
 | SLAM Back-End | COVINS-G | Global map fusion |
-| Uncertainty Module | SCOPE | Pose covariance estimation |
+| Occupancy prediction | SCOPE | Future occupancy forecasting |
 | Navigation | Nav2 | Uncertainty-aware planning |
 | Middleware | ROS2 + DDS | Communication |
 | Simulation | Gazebo | Multi-robot simulation |
