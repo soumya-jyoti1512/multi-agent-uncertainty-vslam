@@ -374,10 +374,10 @@ This enables integration of semantic uncertainty from dynamic objects.
 | SLAM Back-End | COVINS-G | Global map fusion |
 | Uncertainty Module | SCOPE | Pose covariance estimation |
 | Navigation | Nav2 | Uncertainty-aware planning |
-| Middleware | ROS2 + Cyclone DDS | Communication |
-| Simulation | Gazebo Classic | Multi-robot simulation |
+| Middleware | ROS2 + DDS | Communication |
+| Simulation | Gazebo | Multi-robot simulation |
 | Place Recognition | DBoW2 | Loop closure detection |
-| Language | C++ , Python |
+| Language | C++ , Python | core and coordination |
 
 ---
 
@@ -387,7 +387,7 @@ This enables integration of semantic uncertainty from dynamic objects.
 |---|---|
 | Mobile Robots | 3× TurtleBot4 |
 | RGB-D Cameras | 3× Intel RealSense D435i |
-| Onboard Compute | Raspberry Pi 4 (8GB RAM) |
+| Onboard Compute | Raspberry Pi 5 (16GB RAM) |
 | Ground Station | Ubuntu 24.04 Workstation |
 | Network | Dedicated 5 GHz Wi-Fi |
 | LiDAR | RPLIDAR A1M8 |
